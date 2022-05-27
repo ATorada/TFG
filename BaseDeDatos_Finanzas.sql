@@ -236,7 +236,9 @@ CREATE OR REPLACE FUNCTION public.ultimo_inicio_sesion()
     VOLATILE NOT LEAKPROOF
 AS $BODY$
   BEGIN
-   NEW.ultimo_inicio = CURRENT_TIMESTAMP;
+  UPDATE public.usuario
+	SET ultimo_inicio = CURRENT_TIMESTAMP
+	WHERE usuario=NEW.usuario ;
    RETURN NEW;
   END;
  
@@ -248,7 +250,13 @@ ALTER FUNCTION public.ultimo_inicio_sesion()
 
 CREATE TRIGGER ultimo_inicio_sesion
     BEFORE INSERT OR UPDATE
-    ON public.usuario
+    ON public.compra_grande
+    FOR EACH ROW
+    EXECUTE FUNCTION public.ultimo_inicio_sesion();
+
+CREATE TRIGGER ultimo_inicio_sesion
+    BEFORE INSERT OR UPDATE
+    ON public.finanzas
     FOR EACH ROW
     EXECUTE FUNCTION public.ultimo_inicio_sesion();
 
